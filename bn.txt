@@ -1,0 +1,75 @@
+package swpt;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+public class Main {
+	
+	private static final List<Integer> lunarDaysInMonth = Arrays.asList(30, 29, 30, 29, 30, 29, 30, 30, 30, 29, 30, 29);
+
+    public static int getMonthLength(int month, int year) {
+        if (isLunarYearLeap(year) && month == 12) {
+            return lunarDaysInMonth.get(month - 1) + 1;
+        } else {
+            return lunarDaysInMonth.get(month - 1);
+        }
+    }
+    
+    public static boolean isLunarYearLeap(int yyyy) {
+        int[] arr = {0, 3, 6, 9, 11, 14, 17};
+        int leap = yyyy % 19;
+        return Arrays.asList(arr).contains(leap);
+    }
+
+	public static void main(String[] args) {
+		List<Date> dateList = new ArrayList<Date>();
+
+		String str_date ="25/07/2023";
+		String end_date ="25/02/2024";
+
+		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		Date startDate;
+		Date endDate;
+		try {
+			startDate = (Date)formatter.parse(str_date);
+			endDate = (Date)formatter.parse(end_date);			
+			
+			long interval = 7 * 24 * 1000 * 60 * 60;
+			long interval_day = 24 * 1000 * 60 * 60;
+			long interval_month = 24 * 1000 * 60 * 60;
+			
+			long endTime = endDate.getTime();
+			long curTime = startDate.getTime();
+			while (curTime <= endTime) {
+				dateList.add(new Date(curTime));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(new Date(curTime));
+				
+				int length = getMonthLength(cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));//30
+				int day = cal.getActualMaximum(Calendar.DAY_OF_MONTH);//31
+				int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);//25
+				if(day > length && dayOfMonth > 24) {
+					curTime += interval + interval_day;
+				} else {
+					curTime += interval;
+				}
+			}
+			
+			
+			for (int i = 0; i < dateList.size(); i++) {
+				Date lDate = (Date) dateList.get(i);
+				String ds = formatter.format(lDate);
+				System.out.println(" Date is ..." + ds);
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+}
